@@ -93,7 +93,7 @@ func (mc *multicastConn) LocalAddr() net.Addr {
 }
 
 func (mc *multicastConn) readPackets(timeout time.Duration, h packetHandler) error {
-	buf := make([]byte, 65535)
+	buf := make([]byte, 16384)
 	if timeout > 0 {
 		mc.pconn.SetReadDeadline(time.Now().Add(timeout))
 	}
@@ -105,7 +105,9 @@ func (mc *multicastConn) readPackets(timeout time.Duration, h packetHandler) err
 			}
 			return err
 		}
-		if err := h(addr, buf[:n]); err != nil {
+
+		ret, err := h(addr, buf[:n])
+		if ret || err != nil {
 			return err
 		}
 	}

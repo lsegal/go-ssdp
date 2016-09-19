@@ -19,7 +19,7 @@ func init() {
 	}
 }
 
-type packetHandler func(net.Addr, []byte) error
+type packetHandler func(net.Addr, []byte) (bool, error)
 
 func readPackets(conn *net.UDPConn, timeout time.Duration, h packetHandler) error {
 	buf := make([]byte, 65535)
@@ -33,7 +33,9 @@ func readPackets(conn *net.UDPConn, timeout time.Duration, h packetHandler) erro
 			}
 			return err
 		}
-		if err := h(addr, buf[:n]); err != nil {
+
+		ret, err := h(addr, buf[:n])
+		if ret || err != nil {
 			return err
 		}
 	}

@@ -37,11 +37,11 @@ func (m *Monitor) Start() error {
 }
 
 func (m *Monitor) serve() error {
-	err := m.conn.readPackets(0, func(addr net.Addr, data []byte) error {
+	err := m.conn.readPackets(0, func(addr net.Addr, data []byte) (bool, error) {
 		msg := make([]byte, len(data))
 		copy(msg, data)
 		go m.handleRaw(addr, msg)
-		return nil
+		return true, nil
 	})
 	if err != nil && err != io.EOF {
 		return err

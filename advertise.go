@@ -59,16 +59,16 @@ func Advertise(st, usn, location, server string, maxAge int) (*Advertiser, error
 }
 
 func (a *Advertiser) serve() error {
-	err := a.conn.readPackets(0, func(addr net.Addr, data []byte) error {
+	err := a.conn.readPackets(0, func(addr net.Addr, data []byte) (bool, error) {
 		select {
 		case _ = <-a.quit:
-			return io.EOF
+			return false, io.EOF
 		default:
 		}
 		if err := a.handleRaw(addr, data); err != nil {
 			logf("failed to handle message: %s", err)
 		}
-		return nil
+		return true, nil
 	})
 	if err != nil && err != io.EOF {
 		return err

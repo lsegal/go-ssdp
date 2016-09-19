@@ -86,15 +86,15 @@ func Search(searchType string, waitSec int, localAddr string) ([]Service, error)
 
 	// wait response.
 	var list []Service
-	h := func(a net.Addr, d []byte) error {
+	h := func(a net.Addr, d []byte) (bool, error) {
 		srv, err := parseService(a, d)
 		if err != nil {
 			logf("invalid search response from %s: %s", a.String(), err)
-			return nil
+			return false, nil
 		}
 		list = append(list, *srv)
 		logf("search response from %s: %s", a.String(), srv.USN)
-		return nil
+		return true, nil
 	}
 	d := time.Second * time.Duration(waitSec)
 	if err := conn.readPackets(d, h); err != nil {
